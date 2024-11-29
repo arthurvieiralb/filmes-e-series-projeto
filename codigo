@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Definindo a estrutura de um nó para a pilha
+typedef struct Node {
+    char title[100];  // Título do filme ou série
+    int isSeries;     // 1 para série, 0 para filme
+    struct Node* next; // Ponteiro para o próximo nó
+} Node;
+
+// Função para criar um novo nó
+Node* createNode(const char* title, int isSeries) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode) {
+        strcpy(newNode->title, title);
+        newNode->isSeries = isSeries;
+        newNode->next = NULL;
+    }
+    return newNode;
+}
+
+// Função para adicionar um filme ou série à pilha
+void push(Node** top, const char* title, int isSeries) {
+    Node* newNode = createNode(title, isSeries);
+    if (newNode) {
+        newNode->next = *top;
+        *top = newNode;
+    }
+}
+
+// Função para remover o topo da pilha (assistir ao filme ou série mais recente)
+void pop(Node** top) {
+    if (*top == NULL) {
+        printf("Voce nao tem filmes ou series para assistir.\n");
+        return;
+    }
+    Node* temp = *top;
+    *top = (*top)->next;
+    printf("Assistindo: %s (%s)\n", temp->title, temp->isSeries ? "Serie" : "Filme");
+    free(temp);
+}
+
+// Função para exibir o filme/série no topo da pilha
+void viewCurrent(Node* top) {
+    if (top == NULL) {
+        printf("Voce nao tem filmes ou series na pilha.\n");
+    } else {
+        printf("Proximo para assistir: %s (%s)\n", top->title, top->isSeries ? "Serie" : "Filme");
+    }
+}
+
+// Função para exibir todo o histórico de filmes e séries
+void displayHistory(Node* top) {
+    if (top == NULL) {
+        printf("Historico vazio.\n");
+        return;
+    }
+    printf("Historico de Filmes e Series:\n");
+    Node* temp = top;
+    while (temp != NULL) {
+        printf("%s (%s)\n", temp->title, temp->isSeries ? "Serie" : "Filme");
+        temp = temp->next;
+    }
+}
+
+// Função para limpar o histórico (apagar toda a pilha)
+void clearHistory(Node** top) {
+    while (*top != NULL) {
+        pop(top);
+    }
+    printf("Historico apagado.\n");
+}
+
+// Função principal com o menu de opções
+int main() {
+    Node* top = NULL;  // A pilha começa vazia
+    int choice;
+    char title[100];
+    int isSeries;
+
+    do {
+        printf("\nMenu da Biblioteca de Filmes e Series\n");
+        printf("1. Adicionar filme ou serie\n");
+        printf("2. Assistir ao proximo filme ou serie\n");
+        printf("3. Exibir proximo filme ou serie para assistir\n");
+        printf("4. Exibir historico de filmes e series\n");
+        printf("5. Limpar historico\n");
+        printf("6. Sair\n");
+        printf("Escolha uma opcao : ");
+        scanf("%d", &choice);
+        getchar();  // Para capturar o enter após a opção
+
+        switch (choice) {
+            case 1:
+                printf("Digite o titulo do filme ou serie: ");
+                fgets(title, 100, stdin);
+                title[strcspn(title, "\n")] = 0;  // Remover o caractere de nova linha
+
+                printf("E uma serie ou filme? (1 para serie, 0 para filme): ");
+                scanf("%d", &isSeries);
+                getchar();  // Capturar o enter após a opção
+
+                push(&top, title, isSeries);
+                break;
+            case 2:
+                pop(&top);
+                break;
+            case 3:
+                viewCurrent(top);
+                break;
+            case 4:
+                displayHistory(top);
+                break;
+            case 5:
+                clearHistory(&top);
+                break;
+            case 6:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (choice != 6);
+
+    return 0;
+}
